@@ -1,0 +1,54 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fun-ibw-deployment
+  labels:
+    app: fun-ibw
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: fun-ibw
+  template:
+    metadata:
+      labels:
+        app: fun-ibw
+    spec:
+      securityContext:
+        runAsUser: 11000
+        runAsGroup: 11000
+        fsGroup: 11000
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: fun-ibw
+          image: quay.io/onzack/ibwdailyfun:1.0.0
+          resources:
+            requests:
+              memory: "28Mi"
+              cpu: "10m"
+            limits:
+              memory: "24Mi"
+              cpu: "50m"
+              ephemeral-storage: "500Mi"
+          securityContext:
+            privileged: false
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
+          ports:
+            - containerPort: 8080
+          volumeMounts:
+            - name: cache-volume
+              mountPath: /var/cache/nginx
+            - name: local-volume
+              mountPath: /var/local
+      volumes:
+        - name: cache-volume
+          emptyDir: {}
+        - name: local-volume
+          emptyDir: {}

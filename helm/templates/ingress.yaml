@@ -1,0 +1,17 @@
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: fun-ibw-ingress
+spec:
+  rules:
+  - host: {{ .Release.Namespace }}-a2.{{ .Values.ingress.domain }}
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: fun-ibw
+            port:
+              number: 8080
